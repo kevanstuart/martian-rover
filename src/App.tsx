@@ -1,27 +1,27 @@
-import { useState } from 'react'
-import './App.css'
+import { useCallback, useEffect, useState } from "react";
+import "./app.css";
+import { Input } from "./components/Input";
+import Engine from "./lib/engine";
+import parseInput from "./utils/parse-input";
 
-function App() {
-  const [count, setCount] = useState(0)
+export const Application: React.FC = () => {
+  const [input, setInput] = useState<string>("");
+
+  const handleSetInput = useCallback((newInput: string) => {
+    setInput(newInput);
+  }, []);
+
+  useEffect(() => {
+    const parsed = parseInput(input);
+    if (parsed.length) {
+      // const engine =
+      new Engine(parsed);
+    }
+  }, [input]);
 
   return (
-    <>
-      <section id="center">
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-    </>
-  )
-}
-
-export default App
+    <section id="center">
+      <Input data={input} onUpdate={handleSetInput} />
+    </section>
+  );
+};
