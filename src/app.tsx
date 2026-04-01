@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import "./app.css";
 import { Input } from "./components/Input";
 import { Output } from "./components/Output";
 import { GITHUB_LINK } from "./config/constants";
