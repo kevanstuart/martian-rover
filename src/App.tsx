@@ -2,11 +2,22 @@ import { useCallback, useState } from "react";
 import "./app.css";
 import { Input } from "./components/Input";
 import { Output } from "./components/Output";
+import { GITHUB_LINK } from "./config/constants";
 import Engine from "./lib/engine";
 import parseInput from "./utils/parse-input";
 
 export const Application: React.FC = () => {
   const [output, setOutput] = useState<string[]>([]);
+
+  /**
+   * Incredibly basic error handling - this should be handled
+   * more gracefully by the UI
+   */
+  const handleError = useCallback((error: string) => {
+    if (error) {
+      alert(error);
+    }
+  }, []);
 
   const handleSendOutput = useCallback((result: string) => {
     if (result) {
@@ -20,14 +31,13 @@ export const Application: React.FC = () => {
 
   const handleRunInput = useCallback(
     (instructions: string) => {
+      setOutput([]);
+
       const parsed = parseInput(instructions);
-      if (parsed.length) {
-        setOutput([]);
-        const engine = new Engine(parsed);
-        engine.runEngine(handleSendOutput);
-      }
+      const engine = new Engine(parsed, handleError);
+      if (!engine.hasError) engine.runEngine(handleSendOutput);
     },
-    [handleSendOutput],
+    [handleSendOutput, handleError],
   );
 
   return (
@@ -37,6 +47,19 @@ export const Application: React.FC = () => {
         <Input onRunHandler={handleRunInput} />
         <Output data={output} />
       </div>
+      <small>
+        Created by Kevan Stuart
+        <br />
+        See the&nbsp;
+        <a
+          href={GITHUB_LINK}
+          target="_blank"
+          rel="noopener"
+          className="text-amber-400 hover:underline hover:underline-offset-4"
+        >
+          GitHub Repo
+        </a>
+      </small>
     </main>
   );
 };

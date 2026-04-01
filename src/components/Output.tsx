@@ -1,4 +1,8 @@
-export const Output: React.FC<{ data: string[] }> = ({ data }) => {
+type OutputProps = {
+  data: string[];
+};
+
+export const Output: React.FC<OutputProps> = ({ data }) => {
   return (
     <div className="flex flex-col gap-2.5">
       <p>Results:</p>

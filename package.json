@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "author": {
+    "name": "Kevan Stuart",
+    "email": "kevan.jedi@gmail.com"
+  },
   "scripts": {
     "dev": "bunx --bun vite",
     "build": "bunx --bun vite build",
