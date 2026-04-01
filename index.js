@@ -2,7 +2,7 @@ const cardinals = ["N", "E", "S", "W"];
 
 function is_out_of_bounds(position, max_x, max_y) {
   const [x, y] = position;
-  return x > (max_x) || y > (max_y);
+  return x > max_x || y > max_y;
 }
 
 function move_robot(position, orientation) {
@@ -17,6 +17,8 @@ function move_robot(position, orientation) {
       return [x, y - 1];
     case "W":
       return [x - 1, y];
+    default:
+      return [x, y];
   }
 }
 
@@ -27,7 +29,7 @@ function init(bounds, initial, instructions) {
   const [x, y, orientation] = initial.split(" ");
 
   const robot = {
-    position: [parseInt(x), parseInt(y)],
+    position: [parseInt(x, 10), parseInt(y, 10)],
     orientation: orientation,
   };
 
@@ -42,12 +44,14 @@ function init(bounds, initial, instructions) {
     const currentCardinalIndex = cardinals.indexOf(robot.orientation);
     switch (input) {
       case "L":
-        robot.orientation = cardinals[currentCardinalIndex - 1] ?? cardinals.at(-1)
+        robot.orientation =
+          cardinals[currentCardinalIndex - 1] ?? cardinals.at(-1);
         break;
       case "R":
-        robot.orientation = cardinals[currentCardinalIndex + 1] ?? cardinals[0];
+        robot.orientation =
+          cardinals[currentCardinalIndex + 1] ?? cardinals.at(0);
         break;
-      case "F":
+      case "F": {
         const new_position = move_robot(robot.position, robot.orientation);
         if (is_out_of_bounds(new_position, max_x, max_y)) {
           is_lost = true;
@@ -55,16 +59,19 @@ function init(bounds, initial, instructions) {
           robot.position = new_position;
         }
         break;
+      }
     }
 
     if (is_lost) break;
   }
 
-  return [...robot.position, robot.orientation, is_lost ? "LOST" : null].join(" ");
+  return [...robot.position, robot.orientation, is_lost ? "LOST" : null].join(
+    " ",
+  );
 }
 
 const test_bounds = "5 3";
-const test_start = "3 2 N";
-const test_instructions = "FRRFLLFFRRFLL";
+const test_start = "1 1 E";
+const test_instructions = "RFRFRFRF";
 
 console.log(init(test_bounds, test_start, test_instructions));

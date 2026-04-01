@@ -1,26 +1,43 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import readInitialInput from "@/utils/read-input";
 
 export const Input: React.FC<{
-  data?: string;
-  onUpdate: (value: string) => void;
-}> = ({ data, onUpdate }) => {
+  onRunHandler: (instructions: string) => void;
+}> = ({ onRunHandler }) => {
+  const [data, setData] = useState<string>();
+
   useEffect(() => {
     const getInitialInput = async () => {
-      const initial = await readInitialInput();
-      onUpdate(initial.trim() ?? "");
+      const input = await readInitialInput();
+      setData(input);
     };
 
-    getInitialInput();
-  }, [onUpdate]);
+    if (!data) getInitialInput();
+  }, [data]);
+
+  function runMartianRobot(formData: FormData) {
+    const instructions = formData.get("martian_input") as string;
+    if (instructions !== data) setData(instructions);
+    onRunHandler(instructions.trim());
+  }
 
   return (
-    <form onSubmit={() => {}}>
-      <label>
-        Instructions:
-        <br />
-        <textarea value={data} onChange={() => {}} rows={15} cols={20} />
-      </label>
+    <form action={runMartianRobot} className="flex flex-col gap-2.5">
+      <label htmlFor="martian_input">Instructions:</label>
+      <textarea
+        id="martian_input"
+        name="martian_input"
+        defaultValue={data}
+        rows={10}
+        cols={20}
+        className="peer h-full min-h-5 w-full resize-none rounded-[7px] border border-gray-400 px-3 py-2.5 text-sm font-normal text-blue-gray-700 outline-0"
+      />
+      <button
+        type="submit"
+        className="mt-2.5 w-full rounded-[7px] bg-amber-400 px-3 py-2.5 text-lg text-white uppercase cursor-pointer transition-all shadow-sm hover:bg-amber-500 active:bg-amber-800"
+      >
+        Run
+      </button>
     </form>
   );
 };

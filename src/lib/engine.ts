@@ -1,16 +1,21 @@
-import type { GridPosition } from "@/config/types";
+import type { GridPosition, RobotPosition } from "@/config/types";
 import Robot from "./robot";
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export default class Engine {
   private instructions: string[];
   private gridLimits: GridPosition = [0, 0];
-  private robots: Robot[] = [];
+  public output: string[] = [];
 
-  // Constructor with a private parameter property
+  // I really wanted to call this `dangerWillRobinson`
+  private lastKnownPositions: RobotPosition[] = [];
+
   public constructor(instructions: string[]) {
     this.instructions = instructions;
     this.configureGrid();
-    this.configureRobots();
   }
 
   private configureGrid() {
@@ -31,25 +36,28 @@ export default class Engine {
     this.gridLimits = [x, y];
   }
 
-  private configureRobots() {
+  public async runEngine(sendOutput: (output: string) => void) {
     const instructions = [...this.instructions];
     instructions.shift();
 
     try {
       for (let i = 0; i < instructions.length; i += 3) {
-        const robot = new Robot(this.gridLimits);
-        robot.setStartingPosition(instructions[i]);
-        robot.setInstructions(instructions[i + 1]);
-        this.robots.push(robot);
+        const robot = new Robot(this.gridLimits, [...this.lastKnownPositions]);
+        const result = robot
+          .setStartingPosition(instructions[i])
+          .setInstructions(instructions[i + 1])
+          .run();
+
+        if (robot.isLost && robot.lastGoodPosition)
+          this.lastKnownPositions.push(robot.lastGoodPosition);
+
+        this.output.push(result);
+        sendOutput(result);
+
+        await sleep(500);
       }
     } catch (e: unknown) {
       throw new Error(`Error initialising robot: ${e}`);
-    }
-  }
-
-  public runEngine() {
-    for (const robot of this.robots) {
-      robot.run();
     }
   }
 }
